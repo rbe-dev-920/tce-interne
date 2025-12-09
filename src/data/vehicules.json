@@ -1,0 +1,16 @@
+[
+  {
+    "parc": "231620",
+    "type": "Bus",
+    "modele": "Mercedes Citaro",
+    "immatriculation": "AA-123-BB",
+    "etat": "En service",
+    "interventions": [
+      { "date": "2024-12-10", "description": "Révision annuelle" },
+      { "date": "2025-03-15", "description": "Changement pneus" }
+    ],
+    "futuresInterventions": [
+      { "date": "2025-07-01", "raison": "Contrôle technique" }
+    ]
+  }
+]

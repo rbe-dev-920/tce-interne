@@ -31,8 +31,7 @@ import {
 import { FaClock, FaCheckCircle, FaUser, FaBus, FaShieldAlt, FaMapPin } from 'react-icons/fa';
 import { UserContext } from '../context/UserContext';
 import { formatDateFrLong } from '../utils/dateFormat';
-
-const API = import.meta.env?.VITE_API_URL || 'http://localhost:5000';
+import { API_URL } from '../config';
 
 const TC360 = () => {
   const { user } = useContext(UserContext);
@@ -60,7 +59,7 @@ const TC360 = () => {
     const updateDateAndServices = async () => {
       // Récupérer la date de Paris depuis le serveur
       try {
-        const todayResponse = await fetch(`${API}/api/today`);
+        const todayResponse = await fetch(`${API_URL}_URL}/api/today`);
         const { today } = await todayResponse.json();
         setCurrentDateStr(today);
       } catch (err) {
@@ -96,10 +95,10 @@ const TC360 = () => {
       setLoading(true);
       
       // Obtenir la date d'aujourd'hui depuis le serveur (en heure de Paris)
-      const todayResponse = await fetch(`${API}/api/today`);
+      const todayResponse = await fetch(`${API_URL}_URL}/api/today`);
       const { today } = await todayResponse.json();
       
-      const response = await fetch(`${API}/api/lignes`);
+      const response = await fetch(`${API_URL}_URL}/api/lignes`);
       if (!response.ok) throw new Error('Erreur lors de la récupération des services');
 
       const lignesData = await response.json();
@@ -182,7 +181,7 @@ const TC360 = () => {
         chronometerChecked: pointageForm.chronometerChecked,
       };
 
-      const response = await fetch(`${API}/api/pointages`, {
+      const response = await fetch(`${API_URL}_URL}/api/pointages`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(pointageData),

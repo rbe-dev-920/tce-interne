@@ -213,8 +213,9 @@ const TC360 = () => {
     }
   };
 
-  // Vérifier l'accès
-  if (user && user.role && !['Régulateur', 'Chef d\'Équipe'].includes(user.role)) {
+  // Vérifier l'accès (DG et Responsable d'exploitation ont accès à tout, sinon Régulateur et Chef d'Équipe)
+  const allowedRoles = ['Régulateur', 'Chef d\'Équipe', 'Responsable d\'exploitation', 'DG'];
+  if (user && user.role && !allowedRoles.includes(user.role)) {
     return (
       <Container maxW="container.xl" py={8}>
         <Alert

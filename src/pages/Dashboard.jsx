@@ -24,6 +24,7 @@ import {
 } from '@chakra-ui/react';
 import { UserContext } from '../context/UserContext';
 import { useNavigate } from 'react-router-dom';
+import { API_URL } from '../config';
 import {
   FaBus,
   FaUser,
@@ -34,8 +35,6 @@ import {
   FaExclamationTriangle,
   FaArrowRight,
 } from 'react-icons/fa';
-
-const API_URL = import.meta.env.VITE_API_URL;
 
 const Dashboard = () => {
   const { user } = useContext(UserContext);

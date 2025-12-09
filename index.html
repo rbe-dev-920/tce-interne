@@ -10,17 +10,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>TC Outil - Voyages TC Essonnes</title>
     <script>
-      // Set API URL at runtime before app loads
-      window.RUNTIME_API_URL = (() => {
+      // Détection dynamique de l'API
+      window.getApiUrl = async () => {
         const hostname = window.location.hostname;
-        if (hostname.includes('tce-interne.fr') || hostname.includes('vercel.app')) {
-          return 'https://tce-serv-rbe-serveurs.up.railway.app';
-        }
+        
+        // En développement local, utilise localhost
         if (hostname === 'localhost' || hostname === '127.0.0.1') {
           return 'http://localhost:8081';
         }
-        return 'https://tce-serv-rbe-serveurs.up.railway.app';
-      })();
+        
+        // En production, teste Railway d'abord, puis fallback
+        try {
+          const response = await fetch('https://tce-serv-rbe-serveurs.up.railway.app/health', {
+            method: 'HEAD',
+            mode: 'no-cors'
+          });
+          // Si Railway répond (même sans CORS), l'utilise
+          return 'https://tce-serv-rbe-serveurs.up.railway.app';
+        } catch {
+          // Sinon, utilise un fallback (à mettre à jour avec Render ou autre service)
+          return 'https://tce-api.example.com'; // TODO: mettre à jour avec Render
+        }
+      };
+      
+      // Initialise l'API URL
+      window.RUNTIME_API_URL = 'https://tce-serv-rbe-serveurs.up.railway.app'; // Default pour maintenant
       console.log('[HTML] RUNTIME_API_URL:', window.RUNTIME_API_URL);
     </script>
   </head>

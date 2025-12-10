@@ -49,7 +49,7 @@ const Header = () => {
       {/* Bande supérieure */}
       <Flex
         bg="black"
-        color="red"
+        color="white"
         align="center"
         height="90px"
         justify="center"

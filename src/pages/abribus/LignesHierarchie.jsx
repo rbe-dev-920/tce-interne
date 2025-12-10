@@ -859,10 +859,14 @@ const LignesHierarchie = () => {
     }
   };
 
-  const filteredLignes = lignes.filter(ligne =>
-    ligne.numero.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    ligne.nom.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+  const filteredLignes = lignes
+    .filter(ligne => !!ligne)
+    .filter(ligne => {
+      const numero = (ligne.numero || '').toLowerCase();
+      const nom = (ligne.nom || '').toLowerCase();
+      const term = (searchTerm || '').toLowerCase();
+      return numero.includes(term) || nom.includes(term);
+    });
 
   if (loading) {
     return (

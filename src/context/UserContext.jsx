@@ -4,6 +4,7 @@ export const UserContext = createContext();
 
 export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null);
+  const [ready, setReady] = useState(false);
 
   // Charger l'utilisateur depuis localStorage au montage
   useEffect(() => {
@@ -16,6 +17,7 @@ export const UserProvider = ({ children }) => {
       console.error('Erreur chargement utilisateur:', error);
       localStorage.removeItem('user');
     }
+    setReady(true);
   }, []);
 
   // Persister l'utilisateur en localStorage quand il change
@@ -33,7 +35,7 @@ export const UserProvider = ({ children }) => {
   };
 
   return (
-    <UserContext.Provider value={{ user, setUser: handleSetUser }}>
+    <UserContext.Provider value={{ user, setUser: handleSetUser, ready }}>
       {children}
     </UserContext.Provider>
   );

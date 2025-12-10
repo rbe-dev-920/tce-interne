@@ -75,14 +75,17 @@ const LignesHierarchie = () => {
       if (!response.ok) throw new Error('Erreur lors du chargement');
       const data = await response.json();
       
-      // Compter les services chargés
+      // Déduplication des services (certains retours API peuvent dupliquer les lignes/sens)
       let totalServices = 0;
       data.forEach(ligne => {
         if (ligne.sens && Array.isArray(ligne.sens)) {
-          ligne.sens.forEach(sens => {
+          ligne.sens = ligne.sens.map(sens => {
             if (sens.services && Array.isArray(sens.services)) {
-              totalServices += sens.services.length;
+              const uniqueServices = Array.from(new Map(sens.services.map(s => [s.id, s])).values());
+              totalServices += uniqueServices.length;
+              return { ...sens, services: uniqueServices };
             }
+            return sens;
           });
         }
       });
@@ -355,7 +358,13 @@ const LignesHierarchie = () => {
     const [hDebut, mDebut] = newService.heureDebut.split(':').map(Number);
     const [hFin, mFin] = newService.heureFin.split(':').map(Number);
     const minutesDebut = hDebut * 60 + mDebut;
-    const minutesFin = hFin * 60 + mFin;
+    let minutesFin = hFin * 60 + mFin;
+
+    // Si l'heure de fin est avant/différence négative, on considère que ça passe minuit
+    if (minutesFin <= minutesDebut) {
+      minutesFin += 24 * 60;
+    }
+
     const dureeService = minutesFin - minutesDebut;
 
     if (dureeService > 600) { // 600 minutes = 10 heures
@@ -389,11 +398,16 @@ const LignesHierarchie = () => {
         const [hLigneDebut, mLigneDebut] = ligne.heureDebut.split(':').map(Number);
         const [hLigneFin, mLigneFin] = ligne.heureFin.split(':').map(Number);
         const minutesLigneDebut = hLigneDebut * 60 + mLigneDebut;
-        const minutesLigneFin = hLigneFin * 60 + mLigneFin;
+        let minutesLigneFin = hLigneFin * 60 + mLigneFin;
 
         // La ligne passe minuit si heureFin < heureDebut
         // Ex: 22:00 - 06:00 ou 05:00 - 02:00
         const lignePasseMinuit = minutesLigneFin < minutesLigneDebut;
+
+        // Si la ligne passe minuit, on normalise la fin au lendemain pour les comparaisons
+        if (lignePasseMinuit) {
+          minutesLigneFin += 24 * 60;
+        }
 
         // Logique simplifiée:
         // Si ligne passe minuit (ex: 05h-02h, 22h-06h):
@@ -408,30 +422,18 @@ const LignesHierarchie = () => {
           // - Service 22h-23h: commence à 22h (OK) et finit à 23h (OK)
           // - Service 01h-02h: commence à 01h (qui est entre 00h et 02h, OK) et finit à 02h (OK)
 
-          if (minutesDebut >= minutesLigneDebut) {
-            // Service commence après heureDebut: 05h-14h ou 22h-23h
-            // Accepté tant que c'est plausible (moins de 10h)
-            // OK
-          } else if (minutesDebut <= minutesLigneFin) {
-            // Service commence avant heureFin (après minuit): 01h-02h
-            // OK
-          } else {
+          // La plage de service normalisée doit être incluse dans la plage de la ligne (normalisée)
+          const serviceDebutNorm = minutesDebut;
+          const serviceFinNorm = minutesFin;
+          const servicePasseMinuit = serviceFinNorm > 24 * 60;
+
+          // Si le service passe minuit, son début peut être avant ou après la borne de début de la ligne.
+          const inclusDansPlage = serviceDebutNorm >= minutesLigneDebut && serviceFinNorm <= minutesLigneFin;
+
+          if (!inclusDansPlage) {
             toast({
               title: 'Erreur d\'horaires',
               description: `Le service doit être entre ${ligne.heureDebut} et ${ligne.heureFin} (lendemain)`,
-              status: 'error',
-              duration: 3000,
-              isClosable: true,
-            });
-            return;
-          }
-
-          // Vérifier que le service ne dépasse pas les limites
-          if (minutesFin > minutesLigneFin && minutesDebut >= minutesLigneDebut && minutesFin < minutesDebut) {
-            // Service passe minuit mais fin > heureFin: ❌
-            toast({
-              title: 'Erreur d\'horaires',
-              description: `Le service ne peut pas finir après ${ligne.heureFin}`,
               status: 'error',
               duration: 3000,
               isClosable: true,
@@ -501,9 +503,9 @@ const LignesHierarchie = () => {
         calendrier = { lundi: true, mardi: true, mercredi: true, jeudi: true, vendredi: true, samedi: false, dimanche: false };
       }
 
+      // Création uniquement sur les jours actifs du calendrier (semaine en cours)
       const dayNames = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
       const createdServices = [];
-      let servicesCount = 0;
 
       for (let i = 0; i < 7; i++) {
         const serviceDate = new Date(weekStart);
@@ -511,44 +513,34 @@ const LignesHierarchie = () => {
         const dateStr = serviceDate.toISOString().split('T')[0];
         const dayName = dayNames[serviceDate.getDay()]; // 0=dimanche...6=samedi
 
-        // Vérifier si la ligne fonctionne ce jour
-        if (!calendrier[dayName]) {
-          continue;
+        // Si la ligne n'est pas active ce jour-là, on saute
+        if (!calendrier[dayName]) continue;
+
+        const dateWithTime = `${dateStr}T12:00:00`;
+
+        const response = await fetch(`${API_URL}/api/services-hierarchie`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            sensId: selectedSensForService,
+            ligneId: ligne.id,
+            heureDebut: newService.heureDebut,
+            heureFin: newService.heureFin,
+            statut: 'Planifiée',
+            date: dateWithTime,
+          }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          console.error(`❌ Erreur création service (${dayName}) :`, errorData);
+          throw new Error(errorData.error || 'Erreur inconnue');
         }
 
-        servicesCount++;
-
-        try {
-          // Créer la date à midi (12:00) pour éviter les problèmes de timezone
-          const dateWithTime = `${dateStr}T12:00:00`;
-          
-          const response = await fetch(`${API_URL}/api/services-hierarchie`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              sensId: selectedSensForService,
-              ligneId: ligne.id,
-              heureDebut: newService.heureDebut,
-              heureFin: newService.heureFin,
-              statut: 'Planifiée',
-              date: dateWithTime, // Date + heure midi pour éviter décalage timezone
-            }),
-          });
-
-          if (!response.ok) {
-            const errorData = await response.json();
-            console.error(`❌ Erreur création service ${servicesCount}:`, errorData);
-            throw new Error(`Service ${dayName} - ${errorData.error || 'Erreur inconnue'}`);
-          }
-          const created = await response.json();
-          createdServices.push(created);
-        } catch (e) {
-          console.error(`❌ ERREUR à la création du service ${servicesCount}:`, e);
-          throw e;
-        }
+        createdServices.push(await response.json());
       }
 
-      toast({ description: `✅ ${createdServices.length} services créés`, status: 'success' });
+      toast({ description: `✅ ${createdServices.length} service(s) créé(s)`, status: 'success' });
 
       // Rafraîchir les lignes depuis le serveur pour garantir la persistance
       await fetchLignes();
@@ -558,7 +550,7 @@ const LignesHierarchie = () => {
 
       toast({
         title: 'Succès',
-        description: `${createdServices.length} services créés pour les jours de fonctionnement (durée: ${(dureeService / 60).toFixed(1)}h)`,
+        description: `${createdServices.length} service(s) créés (durée: ${(dureeService / 60).toFixed(1)}h)`,
         status: 'success',
         duration: 3000,
         isClosable: true,

@@ -48,7 +48,7 @@ const Header = () => {
     <Box fontFamily="Montserrat">
       {/* Bande supérieure */}
       <Flex
-        bg="gray.800"
+        bg="black"
         color="red"
         align="center"
         height="90px"

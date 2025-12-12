@@ -5,8 +5,12 @@ import { UserContext } from '../context/UserContext';
 const ProtectedRoute = ({ children }) => {
   const { user, ready } = useContext(UserContext);
 
-  // Tant que le chargement du user (localStorage) n'est pas fait, on ne redirige pas
-  if (!ready) return null;
+  // Tant que le chargement du user (localStorage) n'est pas fait, affiche un loader
+  if (!ready) {
+    return <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh' }}>
+      <p>Chargement...</p>
+    </div>;
+  }
 
   // Si pas d'utilisateur connecté, rediriger vers login
   if (!user) {

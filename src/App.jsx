@@ -37,7 +37,6 @@ function App() {
       <Route path="/mon-profil" element={<ProtectedRoute><MainLayout><MonProfil /></MainLayout></ProtectedRoute>} />
       <Route path="/ma-messagerie" element={<ProtectedRoute><MainLayout><MaMessagerie /></MainLayout></ProtectedRoute>} />
       <Route path="/mon-casier" element={<ProtectedRoute><MainLayout><MonCasier /></MainLayout></ProtectedRoute>} />
-      <Route path="*" element={<ProtectedRoute><MainLayout><NotFound /></MainLayout></ProtectedRoute>} />
       <Route path="/abribus/vehicules" element={<ProtectedRoute><MainLayout><Vehicules /></MainLayout></ProtectedRoute>} />
       <Route path="/abribus/vehicule/:parc" element={<ProtectedRoute><VehiculeDetail /></ProtectedRoute>} />
       <Route path="/abribus/atelier" element={<ProtectedRoute><MainLayout><Atelier /></MainLayout></ProtectedRoute>} />
@@ -48,6 +47,7 @@ function App() {
       <Route path="/abribus/plannings" element={<ProtectedRoute><MainLayout><Plannings /></MainLayout></ProtectedRoute>} />
       <Route path="/abribus/conducteurs" element={<ProtectedRoute><MainLayout><GestionConducteurs /></MainLayout></ProtectedRoute>} />
       <Route path="/abribus/saeiv" element={<ProtectedRoute><MainLayout><SAEIV /></MainLayout></ProtectedRoute>} />
+      <Route path="*" element={<NotFound />} />
     </Routes>
   );
 }

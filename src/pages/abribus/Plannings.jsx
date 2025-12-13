@@ -738,14 +738,22 @@ const PlanningsCalendar = () => {
         </Box>
 
         {/* Informations réglementaires */}
-        <Card bg="yellow.50" borderLeft="4px" borderLeftColor="yellow.500">
+        <Card bg="yellow.50" borderLeft="4px" borderLeftColor="yellow.500" mt={6}>
           <CardBody>
-            <Heading size="sm" mb={3}>Règlementations du transport en commun</Heading>
-            <SimpleGrid columns={2} spacing={2} fontSize="sm">
-              <Text><strong>Durée max/service :</strong> {REGLEMENTATIONS.dureeMaxService}h</Text>
-              <Text><strong>Pause minimale :</strong> {REGLEMENTATIONS.pauseMinimale * 60}min</Text>
-              <Text><strong>Heures max/semaine :</strong> {REGLEMENTATIONS.heuresMaxParSemaine}h</Text>
-              <Text><strong>Durée min/service :</strong> {REGLEMENTATIONS.heuresMinParService}h</Text>
+            <Heading size="sm" mb={4} color="orange.700">📋 Règlementations du transport en commun</Heading>
+            <SimpleGrid columns={{ base: 1, md: 2 }} spacing={3} fontSize="sm">
+              <Box p={2} bg="white" borderRadius="md" border="1px solid orange.200">
+                <Text><strong>Durée max/service :</strong> {REGLEMENTATIONS.dureeMaxService}h</Text>
+              </Box>
+              <Box p={2} bg="white" borderRadius="md" border="1px solid orange.200">
+                <Text><strong>Pause minimale :</strong> {REGLEMENTATIONS.pauseMinimale * 60}min</Text>
+              </Box>
+              <Box p={2} bg="white" borderRadius="md" border="1px solid orange.200">
+                <Text><strong>Heures max/semaine :</strong> {REGLEMENTATIONS.heuresMaxParSemaine}h</Text>
+              </Box>
+              <Box p={2} bg="white" borderRadius="md" border="1px solid orange.200">
+                <Text><strong>Durée min/service :</strong> {REGLEMENTATIONS.heuresMinParService}h</Text>
+              </Box>
             </SimpleGrid>
           </CardBody>
         </Card>

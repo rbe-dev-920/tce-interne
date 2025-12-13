@@ -73,9 +73,10 @@ const ImportLignesCSV = ({ isOpen, onClose, onSuccess }) => {
   };
 
   const downloadTemplate = () => {
-    const template = `numéro de ligne,Nom de la ligne,Jours de fonctionnement,type,premier départ,dernier arrivé au dépôt,Sens 1,Direction 1,Sens 2,Direction 2
-4201,SEMAINE_4201,L; M; M; J; V,autobus,04h37,00h10,Aller,Gare SNCF → Centre Ville,Retour,Centre Ville → Gare SNCF
-4202,SEMAINE_4202,L; M; M; J; V,autobus,05h00,01h00,Aller,Gare SNCF → Mairie`;
+    const template = `numéro de ligne,Nom de la ligne,Jours de fonctionnement,type,premier départ,dernier arrivé au dépôt,Sens,Direction,Service 1 Début,Service 1 Fin,Service 2 Début,Service 2 Fin
+4201,SEMAINE_4201,L; M; M; J; V,autobus,04h37,00h10,Aller,Gare SNCF → Centre Ville,06h30,14h00,14h30,22h45
+4201,SEMAINE_4201,L; M; M; J; V,autobus,04h37,00h10,Retour,Centre Ville → Gare SNCF,07h00,15h00,15h30,23h00
+4202,SEMAINE_4202,L; M; M; J; V,autobus,05h00,01h00,Aller,Gare SNCF → Mairie,06h00,14h15,14h45,23h00`;
 
     const element = document.createElement('a');
     element.setAttribute(
@@ -102,28 +103,32 @@ const ImportLignesCSV = ({ isOpen, onClose, onSuccess }) => {
                 Format attendu du CSV :
               </Text>
               <Code display="block" p={2} borderRadius="md" overflow="auto" fontSize="xs">
-              {`numéro de ligne,Nom de la ligne,Jours de fonctionnement,type,premier départ,dernier arrivé au dépôt,Sens 1,Direction 1,Sens 2,Direction 2
-4201,SEMAINE_4201,L; M; M; J; V,autobus,04h37,00h10,Aller,Gare → Centre,Retour,Centre → Gare`}
-            </Code>
-          </Box>
+                {`numéro de ligne,Nom de la ligne,Jours de fonctionnement,type,premier départ,dernier arrivé au dépôt,Sens,Direction,Service 1 Début,Service 1 Fin,Service 2 Début,Service 2 Fin
+4201,SEMAINE_4201,L; M; M; J; V,autobus,04h37,00h10,Aller,Gare SNCF → Centre,06h30,14h00,14h30,22h45
+4201,SEMAINE_4201,L; M; M; J; V,autobus,04h37,00h10,Retour,Centre → Gare,07h00,15h00,15h30,23h00`}
+              </Code>
+            </Box>
 
-          <Box fontSize="sm" color="gray.600">
-            <Text mb={1}>
-              <strong>Colonnes requises :</strong> numéro de ligne, Nom de la ligne, Jours de fonctionnement, type, premier départ, dernier arrivé au dépôt
-            </Text>
-            <Text mb={1}>
-              <strong>Colonnes optionnelles :</strong> Sens 1, Direction 1, Sens 2, Direction 2, etc. (tu peux ajouter autant de sens que tu veux)
-            </Text>
-            <Text mb={1}>
-              <strong>Jours :</strong> Format "L; M; M; J; V; S; D" (séparés par point-virgule et espace)
-            </Text>
-            <Text mb={1}>
-              <strong>Heures :</strong> Format HHhMM (ex: 04h37, 00h10)
-            </Text>
-            <Text>
-              <strong>Type :</strong> autobus, minibus, autocar, van
-            </Text>
-          </Box>
+            <Box fontSize="sm" color="gray.600">
+              <Text mb={1}>
+                <strong>Colonnes requises :</strong> numéro de ligne, Nom de la ligne, Jours de fonctionnement, type, premier départ, dernier arrivé au dépôt
+              </Text>
+              <Text mb={1}>
+                <strong>Colonnes optionnelles :</strong> Sens, Direction, Service 1 Début, Service 1 Fin, Service 2 Début, Service 2 Fin, etc.
+              </Text>
+              <Text mb={1}>
+                <strong>Important :</strong> Chaque ligne = 1 ligne + 1 sens + ses services. Si la même ligne a plusieurs sens, répète la ligne avec un sens différent.
+              </Text>
+              <Text mb={1}>
+                <strong>Jours :</strong> Format "L; M; M; J; V; S; D" (séparés par point-virgule et espace)
+              </Text>
+              <Text mb={1}>
+                <strong>Heures :</strong> Format HHhMM (ex: 06h30, 14h00)
+              </Text>
+              <Text>
+                <strong>Type :</strong> autobus, minibus, autocar, van
+              </Text>
+            </Box>
 
             <Divider />
 

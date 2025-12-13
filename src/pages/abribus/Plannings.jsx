@@ -277,15 +277,20 @@ const PlanningsCalendar = () => {
       if (s.ligne.calendrierJson) {
         try {
           const calendrier = JSON.parse(s.ligne.calendrierJson);
-          const serviceDateTime = new Date(s.date);
-          const dayOfWeek = serviceDateTime.getDay(); // 0=dimanche, 1=lundi, ..., 6=samedi
+          
+          // Utiliser Intl pour obtenir le jour de la semaine en heure Paris (comme le backend)
+          const formatter = new Intl.DateTimeFormat('fr-FR', { 
+            timeZone: 'Europe/Paris',
+            weekday: 'long'
+          });
+          const dayNameFr = formatter.format(new Date(s.date)).toLowerCase();
           
           // Mapping des jours
           const dayNames = ['dimanche', 'lundi', 'mardi', 'mercredi', 'jeudi', 'vendredi', 'samedi'];
-          const dayName = dayNames[dayOfWeek];
+          const dayName = dayNames.includes(dayNameFr) ? dayNameFr : null;
           
           // Vérifier si la ligne fonctionne ce jour-là
-          if (!calendrier[dayName]) {
+          if (!dayName || !calendrier[dayName]) {
             return false; // La ligne ne fonctionne pas ce jour
           }
         } catch (e) {

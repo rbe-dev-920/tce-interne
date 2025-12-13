@@ -114,11 +114,16 @@ const ImportLignesCSV = ({ isOpen, onClose, onSuccess }) => {
             <Text mb={1}>
               <strong>Colonnes optionnelles :</strong> Sens 1, Direction 1, Sens 2, Direction 2, etc. (tu peux ajouter autant de sens que tu veux)
             </Text>
-              </Text>
-              <Text>
-                <strong>Type :</strong> autobus, minibus, autocar, van
-              </Text>
-            </Box>
+            <Text mb={1}>
+              <strong>Jours :</strong> Format "L; M; M; J; V; S; D" (séparés par point-virgule et espace)
+            </Text>
+            <Text mb={1}>
+              <strong>Heures :</strong> Format HHhMM (ex: 04h37, 00h10)
+            </Text>
+            <Text>
+              <strong>Type :</strong> autobus, minibus, autocar, van
+            </Text>
+          </Box>
 
             <Divider />
 
